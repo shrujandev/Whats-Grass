@@ -6,21 +6,22 @@ class ServerThread(threading.Thread):
     def __init__(self, clientAddr, clientSocket):
         threading.Thread.__init__(self)
         self.cSocket = clientSocket
+        self.cAddr = clientAddr
         print("New connection added :", clientAddr)
 
-        def run(self):
-            print("\nConnction from ", clientAddr)
-            while True:
-                # receive data stream. it won't accept data packet greater than 1024 bytes
-                data = self.cSocket.recv(1024).decode()
-                if not data:
-                    # if data is not received break
-                    break
-                print("from connected user: " + str(data))
+    def run(self):
+        print("\nConnction from ", self.cAddr)
+        while True:
+            # receive data stream. it won't accept data packet greater than 1024 bytes
+            data = self.cSocket.recv(1024).decode()
+            if not data:
+                # if data is not received break
+                break
+            # print("from connected user: " + str(data))
 
-                self.cSocket.send(data.encode())
-            self.cSocket.close()
-            print("\nConnction from ", clientAddr, " Closed Successfully")
+            self.cSocket.send(data.encode())
+        self.cSocket.close()
+        print("\nConnction from ", self.cAddr, " Closed Successfully")
 
 
 def server_program():
