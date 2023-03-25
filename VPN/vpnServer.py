@@ -2,12 +2,12 @@ from socket import *
 import threading
 from time import *
 import os
-    
+
 zkaHost = '192.168.26.154'
 zkaPort = 9994
 
 host = ''
-port = 5007
+port = 5008
 BUFFER_SIZE = 4096
 SEPARATOR = "<SEPARATOR>"
 
@@ -24,7 +24,8 @@ class ServerThread(threading.Thread):
             data = self.cSocket.recv(1024).decode()
             if not data:
                 break
-            data = parseData(data, self.cSocket)
+            data = parseData(data, self.cSocket, str(
+                threading.current_thread().ident))
             # self.cSocket.send(data.encode())
         socketClose(self.cSocket, self.cAddr)
 
@@ -42,14 +43,15 @@ def connectZKA():
     zkaSocket.connect((zkaHost, zkaPort))
     return zkaSocket
 
-def parseData(data, vpnSocket):
+
+def parseData(data, vpnSocket, threadID):
     if data == "request":
         zSoc = connectZKA()
         zSoc.send(data.encode())
         fileMData = zSoc.recv(BUFFER_SIZE).decode()
         filename, filesize = fileMData.split(SEPARATOR)
-        recieveFile(zSoc, filesize)
-        sendFile(vpnSocket)
+        recieveFile(zSoc, filesize, threadID)
+        sendFile(vpnSocket, threadID)
         return data
     elif data == "wait":
         sleep(2)
@@ -59,8 +61,9 @@ def parseData(data, vpnSocket):
     else:
         return "Invalid"
 
-def recieveFile(socket, filesize):
-    filename = "revievedFromZKA.txt"
+
+def recieveFile(socket, filesize, threadID):
+    filename = "revievedFromZKA"+threadID+".txt"
     filesize = int(filesize)
 
     with open(filename, "wb") as f:
@@ -74,10 +77,11 @@ def recieveFile(socket, filesize):
                 pass
                 break
 
-def sendFile(socket):
-    filename = "revievedFromZKA.txt"
+
+def sendFile(socket, threadID):
+    filename = "revievedFromZKA"+threadID+".txt"
     filesize = os.path.getsize(filename)
-    socket.send(f"{filename}{SEPARATOR}{filesize}".encode())
+    socket.send(f"{threadID}{SEPARATOR}{filesize}".encode())
     with open(filename, "rb") as f:
         while True:
             bytesRead = f.read(BUFFER_SIZE)

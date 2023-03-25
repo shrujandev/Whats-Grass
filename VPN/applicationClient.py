@@ -5,7 +5,7 @@ import os
 BUFFER_SIZE = 4096
 SEPARATOR = "<SEPARATOR>"
 host = '192.168.26.10'  # as both code is running on same pc
-port = 5007  # socket server port number
+port = 5008  # socket server port number
 
 def client_program():
 
