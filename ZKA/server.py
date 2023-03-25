@@ -14,9 +14,10 @@ class ServerThread(threading.Thread):
             data = self.cSocket.recv(1024).decode()
             if not data:
                 break
-            print(data)
+            f=open("ad_list","a")
+            f.write(data)
         self.cSocket.close()
-        print("\nConnection from ", self.cAddr, " Closed Successfully")
+        print("\nConnection from ", self.cAddr, " closed Successfully")
 
 client_list=[]
 host = ''
