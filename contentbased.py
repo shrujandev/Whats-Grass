@@ -9,13 +9,17 @@ Original file is located at
 # **Content Based Recommendations**
 """
 
-import pandas as pd 
-import numpy as np 
-df1=pd.read_csv('/content/drive/MyDrive/Movie_data/tmdb_5000_credits.csv')
-df2=pd.read_csv('/content/drive/MyDrive/Movie_data/tmdb_5000_movies.csv')
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.feature_extraction.text import CountVectorizer
+from ast import literal_eval
+from sklearn.metrics.pairwise import linear_kernel
+from sklearn.feature_extraction.text import TfidfVectorizer
 
-from google.colab import drive
-drive.mount('/content/drive')
+import pandas as pd
+import numpy as np
+df1 = pd.read_csv('Dataset/tmdb_5000_credits.csv')
+df2 = pd.read_csv('Dataset/tmdb_5000_movies.csv')
+
 
 """The first dataset contains the following features:-
 
@@ -49,26 +53,25 @@ Let's join the two dataset on the 'id' column
 
 """
 
-df1.columns = ['id','tittle','cast','crew']
-df2= df2.merge(df1,on='id')
+df1.columns = ['id', 'tittle', 'cast', 'crew']
+df2 = df2.merge(df1, on='id')
 
 """Just a peak at our data."""
 
 df2.head(5)
 
-#Import TfIdfVectorizer from scikit-learn
-from sklearn.feature_extraction.text import TfidfVectorizer
+# Import TfIdfVectorizer from scikit-learn
 
-#Define a TF-IDF Vectorizer Object. Remove all english stop words such as 'the', 'a'
+# Define a TF-IDF Vectorizer Object. Remove all english stop words such as 'the', 'a'
 tfidf = TfidfVectorizer(stop_words='english')
 
-#Replace NaN with an empty string
+# Replace NaN with an empty string
 df2['overview'] = df2['overview'].fillna('')
 
-#Construct the required TF-IDF matrix by fitting and transforming the data
+# Construct the required TF-IDF matrix by fitting and transforming the data
 tfidf_matrix = tfidf.fit_transform(df2['overview'])
 
-#Output the shape of tfidf_matrix
+# Output the shape of tfidf_matrix
 tfidf_matrix.shape
 
 """We see that over 20,000 different words were used to describe the 4800 movies in our dataset.
@@ -82,14 +85,13 @@ Since we have used the TF-IDF vectorizer, calculating the dot product will direc
 """
 
 # Import linear_kernel
-from sklearn.metrics.pairwise import linear_kernel
 
 # Compute the cosine similarity matrix
 cosine_sim = linear_kernel(tfidf_matrix, tfidf_matrix)
 
 """We are going to define a function that takes in a movie title as an input and outputs a list of the 10 most similar movies. Firstly, for this, we need a reverse mapping of movie titles and DataFrame indices. In other words, we need a mechanism to identify the index of a movie in our metadata DataFrame, given its title."""
 
-#Construct a reverse map of indices and movie titles
+# Construct a reverse map of indices and movie titles
 indices = pd.Series(df2.index, index=df2['title']).drop_duplicates()
 
 """We are now in a good position to define our recommendation function. These are the following steps we'll follow :-
@@ -101,6 +103,8 @@ indices = pd.Series(df2.index, index=df2['title']).drop_duplicates()
 """
 
 # Function that takes in movie title as input and outputs most similar movies
+
+
 def get_recommendations(title, cosine_sim=cosine_sim):
     # Get the index of the movie that matches the title
     idx = indices[title]
@@ -120,8 +124,8 @@ def get_recommendations(title, cosine_sim=cosine_sim):
     # Return the top 10 most similar movies
     return df2['title'].iloc[movie_indices]
 
+
 # Parse the stringified features into their corresponding python objects
-from ast import literal_eval
 
 features = ['cast', 'crew', 'keywords', 'genres']
 for feature in features:
@@ -130,6 +134,8 @@ for feature in features:
 """Next, we'll write functions that will help us to extract the required information from each feature."""
 
 # Get the director's name from the crew feature. If director is not listed, return NaN
+
+
 def get_director(x):
     for i in x:
         if i['job'] == 'Director':
@@ -137,16 +143,19 @@ def get_director(x):
     return np.nan
 
 # Returns the list top 3 elements or entire list; whichever is more.
+
+
 def get_list(x):
     if isinstance(x, list):
         names = [i['name'] for i in x]
-        #Check if more than 3 elements exist. If yes, return only first three. If no, return entire list.
+        # Check if more than 3 elements exist. If yes, return only first three. If no, return entire list.
         if len(names) > 3:
             names = names[:3]
         return names
 
-    #Return empty list in case of missing/malformed data
+    # Return empty list in case of missing/malformed data
     return []
+
 
 # Define new director, cast, genres and keywords features that are in a suitable form.
 df2['director'] = df2['crew'].apply(get_director)
@@ -161,15 +170,18 @@ df2[['title', 'cast', 'director', 'keywords', 'genres']].head(3)
 """The next step would be to convert the names and keyword instances into lowercase and strip all the spaces between them. This is done so that our vectorizer doesn't count the Johnny of "Johnny Depp" and "Johnny Galecki" as the same."""
 
 # Function to convert all strings to lower case and strip names of spaces
+
+
 def clean_data(x):
     if isinstance(x, list):
         return [str.lower(i.replace(" ", "")) for i in x]
     else:
-        #Check if director exists. If not, return empty string
+        # Check if director exists. If not, return empty string
         if isinstance(x, str):
             return str.lower(x.replace(" ", ""))
         else:
             return ''
+
 
 # Apply clean_data function to your features.
 features = ['cast', 'keywords', 'director', 'genres']
@@ -179,18 +191,19 @@ for feature in features:
 
 """We are now in a position to create our "metadata soup", which is a string that contains all the metadata that we want to feed to our vectorizer (namely actors, director and keywords)."""
 
+
 def create_soup(x):
     return ' '.join(x['keywords']) + ' ' + ' '.join(x['cast']) + ' ' + x['director'] + ' ' + ' '.join(x['genres'])
+
+
 df2['soup'] = df2.apply(create_soup, axis=1)
 
 # Import CountVectorizer and create the count matrix
-from sklearn.feature_extraction.text import CountVectorizer
 
 count = CountVectorizer(stop_words='english')
 count_matrix = count.fit_transform(df2['soup'])
 
 # Compute the Cosine Similarity matrix based on the count_matrix
-from sklearn.metrics.pairwise import cosine_similarity
 
 cosine_sim2 = cosine_similarity(count_matrix, count_matrix)
 
@@ -200,6 +213,6 @@ indices = pd.Series(df2.index, index=df2['title'])
 
 """We can now reuse our **get_recommendations()** function by passing in the new **cosine_sim2** matrix as your second argument."""
 
-get_recommendations('The Dark Knight Rises', cosine_sim2)
+print(get_recommendations('The Dark Knight Rises', cosine_sim2))
 
-get_recommendations('The Godfather', cosine_sim2)
+print(get_recommendations('The Godfather', cosine_sim2))

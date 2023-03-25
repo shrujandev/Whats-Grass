@@ -1,10 +1,15 @@
 from socket import *
 import threading
-host = ''  # VPN server
-port = 9999
+import os
+import tqdm
 
-# client_socket = socket(AF_INET, SOCK_STREAM)
-# client_socket.connect((host, port))
+SEPARATOR = "<SEPARATOR>"
+BUFFER_SIZE = 4096
+
+host = ''
+port = 9994
+
+
 class ZKAThread(threading.Thread):
     def __init__(self, clientAddr, clientSocket):
         threading.Thread.__init__(self)
@@ -14,22 +19,18 @@ class ZKAThread(threading.Thread):
 
     def run(self):
         print("\nConnction from ", self.cAddr)
-        # while True:
         data = self.cSocket.recv(1024).decode()
-        data = "this is from zka"
-        # if not data:
-        #     break
-
-        self.cSocket.send(data.encode())
+        if data == "request":
+            sendFile("ad_list.txt", self.cSocket)
+        else:
+            self.cSocket.send(data.encode())
         self.cSocket.close()
         print("\nConnction from ", self.cAddr, " closed Successfully")
 
 
 def vpnZKA():
-    host = ''
-    port = 9999
 
-    server_socket = socket(AF_INET, SOCK_STREAM)  
+    server_socket = socket(AF_INET, SOCK_STREAM)
     server_socket.bind((host, port))
 
     while (True):
@@ -37,6 +38,18 @@ def vpnZKA():
         cSoc, addr = server_socket.accept()
         newThread = ZKAThread(addr, cSoc)
         newThread.start()
+
+
+def sendFile(filename, socket):
+    filesize = os.path.getsize(filename)
+    socket.send(f"{filename}{SEPARATOR}{filesize}".encode())
+    with open(filename, "rb") as f:
+        while True:
+            bytesRead = f.read(BUFFER_SIZE)
+            if not bytesRead:
+                break
+            socket.sendall(bytesRead)
+
 
 if __name__ == '__main__':
     vpnZKA()
