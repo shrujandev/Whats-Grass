@@ -76,7 +76,7 @@ def parseData(data, vpnSocket, threadID):
 
 
 def recieveFile(socket, filesize, threadID):
-    filename = "revievedFromZKA"+threadID+".txt"
+    filename = "revievedFromZKA"+threadID+".csv"
     filesize = int(filesize)
 
     with open(filename, "wb") as f:
@@ -92,7 +92,7 @@ def recieveFile(socket, filesize, threadID):
 
 
 def sendFile(socket, threadID):
-    filename = "revievedFromZKA"+threadID+".txt"
+    filename = "revievedFromZKA"+threadID+".csv"
     filesize = os.path.getsize(filename)
     socket.send(f"{threadID}{SEPARATOR}{filesize}".encode())
     with open(filename, "rb") as f:
@@ -102,7 +102,7 @@ def sendFile(socket, threadID):
                 print("broke")
                 break
             socket.sendall(bytesRead)
-            print("\nSending")
+            # print("\nSending")
         f.close()
         socket.close()
         return
