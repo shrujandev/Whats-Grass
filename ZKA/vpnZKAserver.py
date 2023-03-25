@@ -24,7 +24,6 @@ class ZKAThread(threading.Thread):
         self.cSocket.close()
         print("\nConnction from ", self.cAddr, " closed Successfully")
 
-
 def vpnZKA():
     host = ''
     port = 9999
