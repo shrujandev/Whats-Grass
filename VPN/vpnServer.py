@@ -2,8 +2,7 @@ from socket import *
 import threading
 from time import *
 import os
-
-
+    
 zkaHost = '192.168.26.154'
 zkaPort = 9994
 
@@ -11,7 +10,6 @@ host = ''
 port = 5007
 BUFFER_SIZE = 4096
 SEPARATOR = "<SEPARATOR>"
-
 
 class ServerThread(threading.Thread):
     def __init__(self, clientAddr, clientSocket):
@@ -23,27 +21,17 @@ class ServerThread(threading.Thread):
     def run(self):
         print("\nConnection from ", self.cAddr)
         while True:
-            # receive data stream. it won't accept data packet greater than 1024 bytes
             data = self.cSocket.recv(1024).decode()
             if not data:
                 break
             data = parseData(data, self.cSocket)
             # self.cSocket.send(data.encode())
-
         socketClose(self.cSocket, self.cAddr)
 
-
 def server_program():
-    # get the hostname
-    # initiate port no above 1024
-
-    server_socket = socket(AF_INET, SOCK_STREAM)  # get instance
-    # look closely. The bind() function takes tuple as argument
-    server_socket.bind((host, port))  # bind host address and port together
-
-    # configure how many client the server can listen simultaneously
-
-    while (True):
+    server_socket = socket(AF_INET, SOCK_STREAM)
+    server_socket.bind((host, port))  
+    while True:
         server_socket.listen(1)
         cSoc, addr = server_socket.accept()
         newThread = ServerThread(addr, cSoc)
@@ -53,7 +41,6 @@ def connectZKA():
     zkaSocket = socket(AF_INET, SOCK_STREAM)
     zkaSocket.connect((zkaHost, zkaPort))
     return zkaSocket
-
 
 def parseData(data, vpnSocket):
     if data == "request":
@@ -72,7 +59,6 @@ def parseData(data, vpnSocket):
     else:
         return "Invalid"
 
-
 def recieveFile(socket, filesize):
     filename = "revievedFromZKA.txt"
     filesize = int(filesize)
@@ -87,7 +73,6 @@ def recieveFile(socket, filesize):
             except:
                 pass
                 break
-
 
 def sendFile(socket):
     filename = "revievedFromZKA.txt"
@@ -105,11 +90,9 @@ def sendFile(socket):
         socket.close()
         return
 
-
 def socketClose(socket, Addr):
     socket.close()
     print("\nConnction from ", Addr, " Closed Successfully")
-
 
 if __name__ == '__main__':
     server_program()

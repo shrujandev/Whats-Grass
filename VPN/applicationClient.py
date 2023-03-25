@@ -7,7 +7,6 @@ SEPARATOR = "<SEPARATOR>"
 host = '192.168.26.10'  # as both code is running on same pc
 port = 5007  # socket server port number
 
-
 def client_program():
 
     client_socket = socket(AF_INET, SOCK_STREAM)  # instantiate
@@ -33,7 +32,7 @@ def client_program():
 def recieveFile(socket, filename, filesize):
     filename = "thisfromVPN"+str(filename)+".txt"
     filesize = int(filesize)
-    print("Matadata Recieved")
+    print("Metadata Recieved")
     with open(filename, "wb") as f:
         while True:
             try:
