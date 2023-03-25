@@ -27,7 +27,8 @@ class ServerThread(threading.Thread):
             if not data:
                 break
             f=open("ads.csv","a")
-            print(data)
+            # print(data)
+            # if data.strip():
             f.write(data)
             f.close()
         self.cSocket.close()
