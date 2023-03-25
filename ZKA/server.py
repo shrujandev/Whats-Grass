@@ -1,6 +1,9 @@
 from socket import *
 import threading
+import os 
 
+SEPARATOR = "<SEPARATOR>"
+BUFFER_SIZE = 4096
 class ServerThread(threading.Thread):
     def __init__(self, clientAddr, clientSocket):
         threading.Thread.__init__(self)
@@ -14,10 +17,23 @@ class ServerThread(threading.Thread):
             data = self.cSocket.recv(1024).decode()
             if not data:
                 break
-            f=open("ad_list","a")
+            f=open("ads.csv","a")
+            print(data)
             f.write(data)
+            f.close()
         self.cSocket.close()
         print("\nConnection from ", self.cAddr, " closed Successfully")
+
+def sendFile(filename, socket):
+    filesize = os.path.getsize(filename)
+    socket.send(f"{filename}{SEPARATOR}{filesize}".encode())
+    with open(filename, "rb") as f:
+        while True:
+            bytesRead = f.read(BUFFER_SIZE)
+            if not bytesRead:
+                break
+            socket.sendall(bytesRead)
+
 
 client_list=[]
 host = ''

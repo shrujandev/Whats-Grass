@@ -3,7 +3,6 @@ import threading
 from time import *
 import os
 
-
 zkaHost = '192.168.26.244'
 zkaPort = 9994
 
@@ -21,30 +20,21 @@ class ServerThread(threading.Thread):
         print("New connection added :", clientAddr)
 
     def run(self):
-        print("\nConnction from ", self.cAddr)
+        print("\nConnection from ", self.cAddr)
         while True:
-            # receive data stream. it won't accept data packet greater than 1024 bytes
             data = self.cSocket.recv(1024).decode()
             if not data:
                 break
             data = parseData(data, self.cSocket, str(
                 threading.current_thread().ident))
             # self.cSocket.send(data.encode())
-
         socketClose(self.cSocket, self.cAddr)
 
 
 def server_program():
-    # get the hostname
-    # initiate port no above 1024
-
-    server_socket = socket(AF_INET, SOCK_STREAM)  # get instance
-    # look closely. The bind() function takes tuple as argument
-    server_socket.bind((host, port))  # bind host address and port together
-
-    # configure how many client the server can listen simultaneously
-
-    while (True):
+    server_socket = socket(AF_INET, SOCK_STREAM)
+    server_socket.bind((host, port))
+    while True:
         server_socket.listen(1)
         cSoc, addr = server_socket.accept()
         newThread = ServerThread(addr, cSoc)
