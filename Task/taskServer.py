@@ -4,11 +4,11 @@ from time import *
 import os
 
 
-zkaHost = '192.168.26.154'
+zkaHost = '192.168.26.244'
 zkaPort = 9994
 
 host = ''
-port = 5008
+port = 5018
 BUFFER_SIZE = 4096
 SEPARATOR = "<SEPARATOR>"
 
@@ -58,14 +58,15 @@ def connectZKA():
 
 
 def parseData(data, vpnSocket, threadID):
-    if data == "request":
+    req, count = data.split(SEPARATOR)
+    if req == "request":
         zSoc = connectZKA()
-        zSoc.send(data.encode())
+        zSoc.send(req.encode())
         fileMData = zSoc.recv(BUFFER_SIZE).decode()
         filename, filesize = fileMData.split(SEPARATOR)
         recieveFile(zSoc, filesize, threadID)
         sendFile(vpnSocket, threadID)
-        return data
+        return req
     elif data == "wait":
         sleep(2)
         return "Waited"
@@ -77,7 +78,7 @@ def parseData(data, vpnSocket, threadID):
 
 def recieveFile(socket, filesize, threadID):
     filename = "revievedFromZKA"+threadID+".csv"
-    filesize = int(filesize)
+    #filesize = int(filesize)
 
     with open(filename, "wb") as f:
         while True:
