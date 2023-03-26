@@ -23,12 +23,12 @@ class ZKAThread(threading.Thread):
         threading.Thread.__init__(self)
         self.cSocket = clientSocket
         self.cAddr = clientAddr
-        logger.info("Connection added on taskZKA server")
+        logger.info(f"Connection added on ZKA server with Client: {clientAddr}")
         print("New connection added :", clientAddr)
 
     def run(self):
         print("\nConnction from ", self.cAddr)
-        logger.info("Connection established with ZKA server")
+        logger.info(f"Connection established with ZKA server by Client: {self.cAddr}")
         data = self.cSocket.recv(1024).decode()
 
         if data == "request":
@@ -50,18 +50,18 @@ class ZKAThread(threading.Thread):
                             # f.write(row+'\n')
             
             f = open("selected_list.csv", "w")
-            logger.info("Opened Selected List File to write into")
+            logger.info("List File opened by ZKA server to write into")
             data=('\n'.join(','.join(x) for x in selected_lines))
             f.write(data)
             f.close()
             sendFile("selected_list.csv", self.cSocket)
-            logger.info("Sent Ad list to server")
+            logger.info(f"Sent Ad list to server {self.cSocket}")
             print("Sent AD list to server")
             # self.cSocket.send(';'.join(selected_lines))
         else:
             self.cSocket.send(data.encode())
             self.cSocket.close()
-        logger.info("Connection closed with ZKA server")
+        logger.info(f"Connection of client {self.cAddr} closed with ZKA server")
         print("\nConnction from ", self.cAddr, " closed Successfully")
 
 def vpnZKA():
@@ -77,6 +77,7 @@ def vpnZKA():
 def sendFile(filename, socket):
     # filesize = os.path.getsize(filename)
     socket.send(f"{filename}{SEPARATOR}{5000}".encode())
+    logger.info(f"ZKA Server sent file.")
     with open(filename, "rb") as f:
         while True:
             bytesRead = f.read(BUFFER_SIZE)

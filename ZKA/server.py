@@ -36,6 +36,7 @@ class ServerThread(threading.Thread):
 def sendFile(filename, socket):
     filesize = os.path.getsize(filename)
     socket.send(f"{filename}{SEPARATOR}{filesize}".encode())
+    logger.info(f"Server sent file to client.")
     with open(filename, "rb") as f:
         while True:
             bytesRead = f.read(BUFFER_SIZE)

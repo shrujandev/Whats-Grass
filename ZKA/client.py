@@ -28,7 +28,7 @@ def client_program():
     client_socket.connect((host, port))
     # client_socket.send("ad_response".encode())
     sendFile("ZKA/urls1.csv", client_socket)
-    logger.info("AD list sent to Server")
+    logger.info(f"Client sent file to ZKA Server with IP: {host}.")
     print("Sent AD list to server")
     # while(True):
     #     data=client_socket.recv(1024).decode()

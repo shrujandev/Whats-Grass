@@ -24,10 +24,12 @@ class ServerThread(threading.Thread):
         self.cSocket = clientSocket
         self.cAddr = clientAddr
         print("New connection added :", clientAddr)
-        logger.info("New Connection Added")
+        logger.info("New Connection Added: ",clientAddr)
 
     def run(self):
         print("\nConnection from ", self.cAddr)
+        logger.info(f"Connection from: {self.cAddr} with task Server")
+
         logger.info("Task Server Running")
         while True:
             data = self.cSocket.recv(1024).decode(encoding="utf-8")
@@ -82,7 +84,7 @@ def parseData(data, vpnSocket, threadID):
 def recieveFile(socket, filesize, threadID):
     filename = "revievedFromZKA"+threadID+".csv"
     #filesize = int(filesize)
-
+    logger.info(f"Task Server receiving Information on Thread: {threadID}.")
     with open(filename, "wb") as f:
         while True:
             try:
@@ -99,6 +101,7 @@ def recieveFile(socket, filesize, threadID):
 def sendFile(socket, threadID):
     filename = "revievedFromZKA"+threadID+".csv"
     filesize = os.path.getsize(filename)
+    logger.info(f"Task Server Sending Information on Thread: {threadID}.")
     socket.send(f"{threadID}{SEPARATOR}{filesize}".encode())
     with open(filename, "rb") as f:
         while True:
@@ -116,7 +119,8 @@ def sendFile(socket, threadID):
 
 def socketClose(socket, Addr):
     socket.close()
-    print("\nConnction from ", Addr, " Closed Successfully")
+    print("\nConnection from ", Addr, " Closed Successfully")
+    logger.info(f"Connection from {Addr} has been closed.")
 
 
 if __name__ == '__main__':
