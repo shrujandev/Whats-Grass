@@ -4,26 +4,34 @@ import os
 
 SEPARATOR = "<SEPARATOR>"
 BUFFER_SIZE = 4096
+
+import logging
+logging.basicConfig(filename=".\logfile.log",
+                    format='%(asctime)s %(message)s',
+                    filemode='w')
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
 class ServerThread(threading.Thread):
     def __init__(self, clientAddr, clientSocket):
         threading.Thread.__init__(self)
         self.cSocket = clientSocket
         self.cAddr = clientAddr
         print("New connection added :", clientAddr)
+        logger.info("Connection added")
 
     def run(self):
         print("\nConnection from ", self.cAddr)
+        logger.info("Connection Established")
         while True:
-            data = self.cSocket.recv(1024).decode()
+            data = self.cSocket.recv(4096).decode()
             if not data:
                 break
-            f=open("ads.csv","a")
-            # print(data)
-            # if data.strip():
+            f=open("ads_list.csv","a", encoding='utf-8')
             f.write(data)
             f.close()
         self.cSocket.close()
-        print("\nConnection from ", self.cAddr, " closed Successfully")
+        logger.info("Connection from ", self.cAddr, " closed Successfully")
+        print("\nConnection  closed Successfully")
 
 def sendFile(filename, socket):
     filesize = os.path.getsize(filename)
@@ -42,6 +50,7 @@ port = 5000
 server_socket = socket(AF_INET, SOCK_STREAM)
 server_socket.bind((host, port))
 print("Server started...")
+logger.info("Ad Collection Server Starting")
 while (True):
     server_socket.listen(1)
     cSoc, addr = server_socket.accept()

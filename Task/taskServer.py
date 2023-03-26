@@ -2,6 +2,12 @@ from socket import *
 import threading
 from time import *
 import os
+import logging
+logging.basicConfig(filename=".\logfile.log",
+                    format='%(asctime)s %(message)s',
+                    filemode='w')
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
 
 zkaHost = '192.168.26.244'
 zkaPort = 9994
@@ -18,9 +24,11 @@ class ServerThread(threading.Thread):
         self.cSocket = clientSocket
         self.cAddr = clientAddr
         print("New connection added :", clientAddr)
+        logger.info("New Connection Added")
 
     def run(self):
         print("\nConnection from ", self.cAddr)
+        logger.info("Task Server Running")
         while True:
             data = self.cSocket.recv(1024).decode(encoding="utf-8")
             if not data:
@@ -29,6 +37,7 @@ class ServerThread(threading.Thread):
                 threading.current_thread().ident))
             # self.cSocket.send(data.encode())
         socketClose(self.cSocket, self.cAddr)
+        logger.info("Task Server Connection closed")
 
 
 def server_program():
@@ -44,6 +53,7 @@ def server_program():
 def connectZKA():
     zkaSocket = socket(AF_INET, SOCK_STREAM)
     zkaSocket.connect((zkaHost, zkaPort))
+    logger.info("Connection established to ZKA server")
     return zkaSocket
 
 
@@ -55,7 +65,9 @@ def parseData(data, vpnSocket, threadID):
         fileMData = zSoc.recv(BUFFER_SIZE).decode(encoding="utf-8")
         filename, filesize = fileMData.split(SEPARATOR)
         recieveFile(zSoc, filesize, threadID)
+        logger.info("File Received by Task Server.")
         sendFile(vpnSocket, threadID)
+        logger.info("File Sent by Task Server.")
         return req
     elif data == "wait":
         sleep(2)
@@ -63,6 +75,7 @@ def parseData(data, vpnSocket, threadID):
     elif data == "response":
         return "This is a response endcomms"
     else:
+        logger.error("Server received an invalid input.")
         return "Invalid"
 
 
