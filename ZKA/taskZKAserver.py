@@ -6,7 +6,7 @@ import csv
 import random 
 
 SEPARATOR = "<SEPARATOR>"
-BUFFER_SIZE = 4096
+BUFFER_SIZE = 1024
 
 host = ''
 port = 9994
@@ -36,7 +36,7 @@ class ZKAThread(threading.Thread):
                 reader = csv.reader(file)
                 num_lines = sum(1 for row in reader)
                 file.seek(0)
-                line_numbers = random.sample(range(num_lines), 500)
+                line_numbers = random.sample(range(num_lines), 4000)
                 selected_lines = []
                 for i, row in enumerate(reader):
                     if i in line_numbers:
@@ -60,7 +60,7 @@ class ZKAThread(threading.Thread):
             # self.cSocket.send(';'.join(selected_lines))
         else:
             self.cSocket.send(data.encode())
-        self.cSocket.close()
+            self.cSocket.close()
         logger.info("Connection closed with ZKA server")
         print("\nConnction from ", self.cAddr, " closed Successfully")
 
@@ -81,10 +81,12 @@ def sendFile(filename, socket):
         while True:
             bytesRead = f.read(BUFFER_SIZE)
             print(bytesRead)
+            print('\n')
             if not bytesRead:
                 break
             socket.sendall(bytesRead)
-
+        f.close()
+        socket.close()
 
 if __name__ == '__main__':
     vpnZKA()

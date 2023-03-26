@@ -17,11 +17,11 @@ class ServerThread(threading.Thread):
         self.cSocket = clientSocket
         self.cAddr = clientAddr
         print("New connection added :", clientAddr)
-        logger.info("Connection added")
+        logger.info(f"Connection added,IP:{self.cAddr}")
 
     def run(self):
         print("\nConnection from ", self.cAddr)
-        logger.info("Connection Established")
+        logger.info("Connection Established with IP: ", self.cAddr)
         while True:
             data = self.cSocket.recv(4096).decode()
             if not data:
