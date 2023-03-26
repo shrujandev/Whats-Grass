@@ -7,7 +7,7 @@ zkaHost = '192.168.26.244'
 zkaPort = 9994
 
 host = ''
-port = 5018
+port = 5026
 BUFFER_SIZE = 4096
 SEPARATOR = "<SEPARATOR>"
 
@@ -22,7 +22,7 @@ class ServerThread(threading.Thread):
     def run(self):
         print("\nConnection from ", self.cAddr)
         while True:
-            data = self.cSocket.recv(1024).decode()
+            data = self.cSocket.recv(1024).decode(encoding="utf-8")
             if not data:
                 break
             data = parseData(data, self.cSocket, str(
@@ -52,7 +52,7 @@ def parseData(data, vpnSocket, threadID):
     if req == "request":
         zSoc = connectZKA()
         zSoc.send(req.encode())
-        fileMData = zSoc.recv(BUFFER_SIZE).decode()
+        fileMData = zSoc.recv(BUFFER_SIZE).decode(encoding="utf-8")
         filename, filesize = fileMData.split(SEPARATOR)
         recieveFile(zSoc, filesize, threadID)
         sendFile(vpnSocket, threadID)
@@ -80,6 +80,7 @@ def recieveFile(socket, filesize, threadID):
             except:
                 pass
                 break
+        f.close()
 
 
 def sendFile(socket, threadID):
@@ -96,7 +97,7 @@ def sendFile(socket, threadID):
             # print("\nSending")
         f.close()
         socket.close()
-    os.remove(filename)
+    # os.remove(filename)
     return
 
 

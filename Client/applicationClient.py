@@ -8,15 +8,14 @@ import pandas as pd
 BUFFER_SIZE = 4096
 SEPARATOR = "<SEPARATOR>"
 host = '192.168.26.10'  # as both code is running on same pc
-port = 5024  # socket server port number
+port = 5026  # socket server port number
 REQUEST = "request"
 
 
 def clientProgram():
 
     # connect to the server
-
-    message = ["request", "wait", "response"]  # take input
+ # take input
 
     while True:
         choice = input(
@@ -78,13 +77,16 @@ def recieveFile(socket, filename, filesize):
 
 def convertDict(filename):
     dictionary = dict()
-    new_df = pd.read_csv(filename, header=None, encoding="utf-8")
+    new_df = pd.read_csv(filename, header=None, encoding='utf-8')
     tt = new_df.iloc[:, 2].to_list()
     urls = new_df.iloc[:, 1].to_list()
     dict1 = {}
     for i in range(len(tt)):
+        if i == 0:
+            continue
         dict1[tt[i]] = urls[i]
     print(dict1)
+    os.remove(filename)
     return dict1
 
 
