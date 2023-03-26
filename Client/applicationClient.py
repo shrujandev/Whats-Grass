@@ -3,12 +3,13 @@ import tqdm
 import os
 import contentbased as cb
 import pandas as pd
+import pprint
 
 
-BUFFER_SIZE = 4096
+BUFFER_SIZE = 1024
 SEPARATOR = "<SEPARATOR>"
 host = '192.168.26.10'  # as both code is running on same pc
-port = 5026  # socket server port number
+port = 5028  # socket server port number
 REQUEST = "request"
 
 
@@ -34,7 +35,7 @@ def clientProgram():
                 fileMData = client_socket.recv(BUFFER_SIZE).decode()
                 filename, filesize = fileMData.split(SEPARATOR)
                 fileDict = recieveFile(client_socket, filename, filesize)
-                print(fileDict)
+                # print(fileDict)
                 for i in l1:
                     if i in fileDict.keys():
                         selectedDict[i] = fileDict[i]
@@ -44,9 +45,12 @@ def clientProgram():
                         break
                 request = request+1
                 client_socket.close()
-            print(selectedDict)
+            # pprint.pprint(selectedDict)
+            print("\nMatched Movies\n")
+            for i in selectedDict.keys():
+                print(i, " : ", selectedDict[i])
         else:
-            print("Errror")
+            print("Byee")
             break
 
 
@@ -63,7 +67,7 @@ def recieveFile(socket, filename, filesize):
                     f.close()
                     break
                 f.write(bytesRead)
-                print("Writing")
+                # print("Writing")
             except:
                 pass
                 break
@@ -71,13 +75,13 @@ def recieveFile(socket, filename, filesize):
     if os.path.getsize(filename) == 0:
         os.remove(filename)
         return dictT
-    print("done")
+    # print("done")
     return convertDict(filename)
 
 
 def convertDict(filename):
     dictionary = dict()
-    new_df = pd.read_csv(filename, header=None, encoding='utf-8')
+    new_df = pd.read_csv(filename, header=None, encoding='utf-8', skiprows=1)
     tt = new_df.iloc[:, 2].to_list()
     urls = new_df.iloc[:, 1].to_list()
     dict1 = {}
@@ -85,7 +89,7 @@ def convertDict(filename):
         if i == 0:
             continue
         dict1[tt[i]] = urls[i]
-    print(dict1)
+    # print(dict1)
     os.remove(filename)
     return dict1
 
