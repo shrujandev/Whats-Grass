@@ -14,12 +14,10 @@ class ServerThread(threading.Thread):
     def run(self):
         print("\nConnection from ", self.cAddr)
         while True:
-            data = self.cSocket.recv(1024).decode()
+            data = self.cSocket.recv(4096).decode()
             if not data:
                 break
-            f=open("ads.csv","a")
-            # print(data)
-            # if data.strip():
+            f=open("ads_list.csv","a", encoding='utf-8')
             f.write(data)
             f.close()
         self.cSocket.close()

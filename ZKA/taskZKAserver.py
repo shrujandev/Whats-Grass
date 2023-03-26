@@ -28,16 +28,17 @@ class ZKAThread(threading.Thread):
                 reader = csv.reader(file)
                 num_lines = sum(1 for row in reader)
                 file.seek(0)
-                line_numbers = random.sample(range(num_lines), 100)
+                line_numbers = random.sample(range(num_lines), 500)
                 selected_lines = []
                 for i, row in enumerate(reader):
                     if i in line_numbers:
-                        while True:
-                            if row=='':
-                                row=next(reader)
-                                continue
-                            selected_lines.append(row)
-                            break
+                        # while True:
+                        #     if row=='':
+                        #         row=next(reader)
+                        #         continue
+                        selected_lines.append(row)
+                        
+                            # break
                             # f.write(row+'\n')
             
             f = open("selected_list.csv", "w")
@@ -68,6 +69,7 @@ def sendFile(filename, socket):
     with open(filename, "rb") as f:
         while True:
             bytesRead = f.read(BUFFER_SIZE)
+            print(bytesRead)
             if not bytesRead:
                 break
             socket.sendall(bytesRead)
