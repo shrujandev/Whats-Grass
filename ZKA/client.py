@@ -4,6 +4,13 @@ import os
 SEPARATOR = "<SEPARATOR>"
 BUFFER_SIZE = 4096
 
+import logging
+logging.basicConfig(filename=".\logfile.log",
+                    format='%(asctime)s %(message)s',
+                    filemode='w')
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
+
 def sendFile(filename, socket):
     filesize = os.path.getsize(filename)
     socket.send(f"{filename}{SEPARATOR}{filesize}".encode())
@@ -21,6 +28,7 @@ def client_program():
     client_socket.connect((host, port))
     # client_socket.send("ad_response".encode())
     sendFile("ZKA/urls1.csv", client_socket)
+    logger.info("AD list sent to Server")
     print("Sent AD list to server")
     # while(True):
     #     data=client_socket.recv(1024).decode()
